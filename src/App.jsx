@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 const initialTasks = [
@@ -15,11 +15,30 @@ const initialTasks = [
     completed: false,
   },
 ]
+const STORAGE_KEY = 'taskflow.tasks'
+
+const loadTasks = () => {
+  try {
+    const savedTasks = localStorage.getItem(STORAGE_KEY)
+
+    if (!savedTasks) return initialTasks
+
+    const parsedTasks = JSON.parse(savedTasks)
+
+    return Array.isArray(parsedTasks) ? parsedTasks : initialTasks
+  } catch {
+    return initialTasks
+  }
+}
 
 function App() {
-  const [tasks, setTasks] = useState(initialTasks)
+  const [tasks, setTasks] = useState(loadTasks)
   const [taskTitle, setTaskTitle] = useState('')
   const [filter, setFilter] = useState('all')
+
+  useEffect(() => {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(tasks))
+}, [tasks])
 
   const addTask = (event) => {
     event.preventDefault()
